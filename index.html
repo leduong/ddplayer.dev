@@ -29,6 +29,11 @@
   <meta name="twitter:description" content="Paste a video URL to play directly. Supports HLS/DASH, MP4 and YouTube." />
   <meta name="twitter:image" content="https://ddplayer.dev/og-image.jpg" />
 
+  <!-- Performance / CDN hints -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/ddplayer@latest/dist/plyr.css" as="style" />
+  <meta name="theme-color" content="#0f172a" />
 </head>
 
 <script type="application/ld+json" id="ld-base">
@@ -70,8 +75,10 @@
 
       <div class="shadow-lg rounded-lg my-5 md:my-0 w-full">
         <h2 class="text-2xl font-bold mb-4">DDPlayer - The Ultimate Video Player</h2>
-        <textarea id="web-share" class="w-full p-4 bg-gray-700/50" onclick="copyWebShare()">
+        <h3>Link share</h3>
+        <textarea id="web-share" class="w-full p-2 bg-gray-700/50" onclick="copyWebShare()">
         </textarea>
+        <p class="text-sm text-gray-400 mt-2">Click the box to copy the web share link to clipboard.</p>
       </div>
 
       <div class="text-left w-full text-gray-300 space-y-2">
@@ -105,66 +112,107 @@
 </body>
 
 <script>
-  badKeywords = [
-    "/live/",
-    "/iptv/",
-    "/streaming.php",
-    "/movie/",
-    "/series/",
-    "xtream",
-    "panel",
-    "hbo",
-    "fox",
-    "bein",
-    "sky",
-    "starz",
-    "cinema",
-    "netflix",
-    "primevideo",
-    "disneyplus",
-    "hbomax",
-    "peacocktv",
-    "paramountplus",
-    "showtime",
-    "starzplay",
-    "appletv",
-    "streamtape",
-    "fembed",
-    "hdp",
-    "hd-streams",
-    "hd-stream",
-    "porn",
-    "xxx",
-    "adult",
-    "xvideos",
-    "xhamster",
-    "pornhub",
-    "redtube",
-    "youporn",
-    "spankbang",
-    "tube8",
-    "tnaflix",
-    "xart",
-    "eroprofile",
-    "erotic",
-    "camgirl",
-    "camsoda",
-    "chaturbate",
-    "myfreecams",
-    "bonga",
-    "stripchat",
-    "livejasmin",
-    "imlive",
-    "flirt4free",
-    "onlyfans",
-    "fanvue",
-    "manyvids",
-    "clips4sale",
-    "iwanktv",
-    "pornmd",
-    "youporn",
-    "spankwire",
-  ]
+  function isSuspiciousURL(input) {
+    if (!input || typeof input !== "string") return true;
+
+    let url;
+    try {
+      url = new URL(input.trim());
+    } catch {
+      return true;
+    }
+
+    const full = url.href.toLowerCase();
+    const host = url.hostname.toLowerCase();
+    const path = url.pathname.toLowerCase();
+
+    /* ========= 1. High-risk path patterns (IPTV / piracy) ========= */
+    const badPathKeywords = [
+      "/iptv/",
+      "/live/",
+      "/movie/",
+      "/movies/",
+      "/series/",
+      "/tv/",
+      "/streaming.php",
+    ];
+
+    if (badPathKeywords.some(k => path.includes(k))) {
+      return true;
+    }
+
+    /* ========= 2. IPTV panel / username-password signature ========= */
+    // /live/username/password/xxxx.m3u8
+    const xtreamRegex = /\/live\/[^/]+\/[^/]+\/?/;
+    if (xtreamRegex.test(path)) {
+      return true;
+    }
+
+    /* ========= 3. Known copyrighted platforms ========= */
+    const bannedPlatforms = [
+      "hbo",
+      "hbomax",
+      "netflix",
+      "primevideo",
+      "disneyplus",
+      "appletv",
+      "peacocktv",
+      "paramountplus",
+      "showtime",
+      "starz",
+      "starzplay",
+      "fox",
+      "bein",
+      "sky",
+    ];
+
+    if (bannedPlatforms.some(p => host.includes(p) || path.includes(p))) {
+      return true;
+    }
+
+    /* ========= 4. Adult / porn (zero tolerance) ========= */
+    const adultKeywords = [
+      "porn",
+      "xxx",
+      "xvideos",
+      "xhamster",
+      "pornhub",
+      "redtube",
+      "youporn",
+      "spankbang",
+      "tube8",
+      "tnaflix",
+      "chaturbate",
+      "camsoda",
+      "myfreecams",
+      "bonga",
+      "stripchat",
+      "livejasmin",
+      "onlyfans",
+      "fanvue",
+      "manyvids",
+      "clips4sale",
+    ];
+
+    if (adultKeywords.some(k => host.includes(k) || path.includes(k))) {
+      return true;
+    }
+
+    /* ========= 5. Suspicious host traits ========= */
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) {
+      // IP address as hostname
+      return true;
+    }
+
+    /* ========= 6. Extremely long or encoded URLs (abuse) ========= */
+    if (input.length > 500 || decodeURIComponent(input).length > 500) {
+      return true;
+    }
+
+    return false;
+  }
+
+
 
   const form = document.getElementById('videoForm');
   const video = document.getElementById('video');
@@ -187,7 +235,13 @@
         return;
       }
     }
-    // Redirect to the same page with the URL as a query parameter
+    if (isSuspiciousURL(url)) {
+      alert(
+        "This URL appears to contain copyrighted, IPTV, or adult content.\n\n" +
+        "DDPlayer is a technical testing tool only and cannot play this URL."
+      );
+      return;
+    }
     const encodedUrl = btoa(url);
     window.location.href = window.location.origin + '?url=' + encodedUrl;
   });
@@ -205,11 +259,13 @@
 
       webShareTextarea.value = window.location.origin + '?url=' + btoa(source);
       document.getElementById('videoUrl').value = source;
-      for (const keyword of badKeywords) {
-        if (source.includes(keyword)) {
-          alert('The URL contains a disallowed keyword: ' + keyword);
-          return;
-        }
+
+      if (isSuspiciousURL(source)) {
+        alert(
+          "This URL appears to contain copyrighted, IPTV, or adult content.\n\n" +
+          "DDPlayer is a technical testing tool only and cannot play this URL."
+        );
+        return;
       }
 
       const player = new Plyr(video);
