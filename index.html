@@ -110,7 +110,7 @@ User-submitted URLs are validated client-side for policy compliance.
     </main>
 
     <div class="mt-6 text-center text-sm text-gray-600">
-      Develop by DDPlayer team, Hosted by <a href="https://github.com/leduong/ddplayer.dev" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">github</a> forked from sampotts/plyr
+      Develop by DDPlayer team, Hosted by <a href="https://github.com/leduong/ddplayer.dev" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">github</a>
     </div>
 </body>
 
@@ -298,12 +298,6 @@ User-submitted URLs are validated client-side for policy compliance.
       return;
     }
 
-    for (const keyword of badKeywords) {
-      if (url.includes(keyword)) {
-        alert('The URL contains a disallowed keyword: ' + keyword);
-        return;
-      }
-    }
     if (isSuspiciousURL(url)) {
       alert(
         "This URL appears to contain copyrighted, IPTV, or adult content.\n\n" +
