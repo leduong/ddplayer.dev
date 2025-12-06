@@ -176,27 +176,95 @@ User-submitted URLs are validated client-side for policy compliance.
 
     /* ========= 4. Adult / porn (zero tolerance) ========= */
     const adultKeywords = [
+      // === Generic adult terms (careful but necessary) ===
       "porn",
+      "porno",
       "xxx",
+      "nsfw",
+      "sexvideo",
+      "adultvideo",
+
+      // === Major porn tube sites ===
+      "pornhub",
+      "youporn",
+      "redtube",
+      "tube8",
       "xvideos",
       "xhamster",
-      "pornhub",
-      "redtube",
-      "youporn",
-      "spankbang",
-      "tube8",
       "tnaflix",
+      "spankbang",
+      "spankwire",
+      "pornmd",
+      "beeg",
+      "drtuber",
+      "fapvid",
+      "vporn",
+      "pornone",
+
+      // === Premium / niche porn networks ===
+      "brazzers",
+      "bangbros",
+      "realitykings",
+      "mofos",
+      "teamskeet",
+      "naughtyamerica",
+      "digitalplayground",
+      "vivid",
+      "evilangel",
+      "kink",
+      "wicked",
+      "hustler",
+
+      // === Cam / live sex platforms ===
       "chaturbate",
       "camsoda",
       "myfreecams",
       "bonga",
       "stripchat",
+      "cam4",
       "livejasmin",
+      "imlive",
+      "flirt4free",
+      "streamate",
+      "xcams",
+
+      // === Creator-based adult ===
       "onlyfans",
       "fanvue",
       "manyvids",
       "clips4sale",
+      "justforfans",
+      "fansly",
+      "patreonporn",
+
+      // === Fetish / niche ===
+      "fetish",
+      "bdsm",
+      "hentai",
+      "milf",
+      "teenporn",
+      "hardcore",
+      "softcore",
+      "camgirl",
+      "camslut",
+
+      // === Amateur / dump sites ===
+      "pornxp",
+      "eporner",
+      "sexvid",
+      "3movs",
+      "yourporn",
+      "watchmygf",
+
+      // === Adult streaming / CDN indicators ===
+      "adultcdn",
+      "porncdn",
+      "sexcdn",
+      "adultstream",
+      "pornstream",
+      "sexstream"
     ];
+
 
     if (adultKeywords.some(k => host.includes(k) || path.includes(k))) {
       return true;
@@ -215,8 +283,6 @@ User-submitted URLs are validated client-side for policy compliance.
 
     return false;
   }
-
-
 
   const form = document.getElementById('videoForm');
   const video = document.getElementById('video');
