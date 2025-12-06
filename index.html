@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📺 DDPlayer - The Ultimate Video Player</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/ddplayer@latest/dist/plyr.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/ddplayer@latest/dist/plyr.css" rel="stylesheet" /> -->
+  <script src="/plyr.min.js"></script>
+  <link href="/plyr.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/hls.js/dist/hls.min.js"></script>
+  <script data-ad-client="ca-pub-7585380861937660" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7585380861937660" crossorigin="anonymous"></script>
+  <meta name="description" content="DDPlayer — a simple, responsive player for HLS, MP4, and YouTube. Paste a video URL to play directly." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://ddplayer.dev/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="DDPlayer" />
+  <meta property="og:title" content="📺 DDPlayer - The Ultimate Video Player" />
+  <meta property="og:description" content="Paste a video URL to play directly. Supports HLS/DASH, MP4 and YouTube." />
+  <meta property="og:image" content="https://ddplayer.dev/og-image.jpg" />
+  <meta property="og:url" content="https://ddplayer.dev/" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="📺 DDPlayer - The Ultimate Video Player" />
+  <meta name="twitter:description" content="Paste a video URL to play directly. Supports HLS/DASH, MP4 and YouTube." />
+  <meta name="twitter:image" content="https://ddplayer.dev/og-image.jpg" />
+
+  <!-- Performance / CDN hints -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/ddplayer@latest/dist/plyr.css" as="style" />
+  <meta name="theme-color" content="#0f172a" />
+</head>
+
+<script type="application/ld+json" id="ld-base">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "DDPlayer",
+    "url": "https://ddplayer.dev/"
+  }
+</script>
+
+<body class="bg-neutral-900 text-gray-100 min-h-screen flex flex-col">
+  <div class="container mx-auto p-6 flex flex-col text-center justify-between h-full">
+    <main class="my-6 w-full flex flex-col justify-center items-center">
+      <header class="bg-green-500 text-white p-4 w-full rounded-lg shadow-lg">
+        <h1 class="text-xl font-bold">📺 DDPlayer - The Ultimate Video Player
+        </h1>
+      </header>
+      <div class="shadow-lg rounded-lg my-5 w-full">
+        <form id="videoForm" class="flex flex-col md:flex-row gap-3 items-stretch">
+          <label for="videoUrl" class="sr-only">Video URL</label>
+          <input type="url" id="videoUrl" placeholder="Enter a valid URL (e.g., https://example.com/playlist.m3u8)" required class="flex-1 px-4 py-2 rounded border border-gray-700 bg-neutral-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="off" />
+          <button type="submit" class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+            Play
+          </button>
+        </form>
+      </div>
+
+      <div class="shadow-lg rounded-lg my-5 md:my-0 w-full">
+        <div class="player-wrap w-full bg-black rounded-lg overflow-hidden shadow-md" style="height: min(70vh, calc(100vh - 220px)); max-height: 900px;">
+          <video id="video" class="w-full h-full object-cover" crossorigin playsinline controls></video>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 border-b border-gray-100 text-lg space-y-1">
+        <p><strong class="text-red-600">DISCLAIMER:</strong> This website does not host or store any video content.</p>
+        <p>All URLs are entered by users. You are solely responsible for ensuring you have the legal right to access any content loaded into this player.</p>
+      </div>
+
+      <div class="shadow-lg rounded-lg my-5 md:my-0 w-full">
+        <h2 class="text-2xl font-bold mb-4">DDPlayer - The Ultimate Video Player</h2>
+        <textarea id="web-share" class="w-full p-4 bg-gray-700/50" onclick="copyWebShare()">
+        </textarea>
+      </div>
+
+      <div class="text-left w-full text-gray-300 space-y-2">
+        <h3 class="text-lg font-semibold">Features</h3>
+        <ul class="list-disc list-inside mb-4 w-full grid gap-1 grid-cols-1 md:grid-cols-2">
+          <li>📼 HTML Video & Audio, YouTube & Vimeo - support for the major formats</li>
+          <li>💪 Accessible - full support for VTT captions and screen readers</li>
+          <li>🔧 Customizable - make the player look how you want with the markup you want</li>
+          <li>😎 Clean HTML - uses the right elements</li>
+          <li>📱 Responsive - works with any screen size</li>
+          <li>💵 Monetization - make money from your videos</li>
+          <li>📹 Streaming - support for hls.js, Shaka and dash.js streaming playback</li>
+          <li>🎛 API - toggle playback, volume, seeking, and more through a standardized API</li>
+          <li>🎤 Events - no messing around with Vimeo and YouTube APIs, all events are standardized across formats</li>
+          <li>🔎 Fullscreen - supports native fullscreen with fallback to "full window" modes</li>
+          <li>⌨️ Shortcuts - supports keyboard shortcuts</li>
+          <li>🖥 Picture-in-Picture - supports picture-in-picture mode</li>
+          <li>📱 Playsinline - supports the playsinline attribute</li>
+          <li>🏎 Speed controls - adjust speed on the fly</li>
+          <li>📖 Multiple captions - support for multiple caption tracks</li>
+          <li>🌎 i18n support - support for internationalization of controls</li>
+          <li>👌 Preview thumbnails - support for displaying preview thumbnails</li>
+          <li>🤟 No frameworks - written in "vanilla" ES6 JavaScript, no jQuery required</li>
+          <li>💁‍♀️ SASS - to include in your build processes</li>
+      </div>
+    </main>
+
+    <div class="mt-6 text-center text-sm text-gray-600">
+      &copy; 2025 DDPlayer
+    </div>
+</body>
+
+<script>
+  badKeywords = [
+    "/live/",
+    "/iptv/",
+    "/streaming.php",
+    "/movie/",
+    "/series/",
+    "xtream",
+    "panel",
+    "hbo",
+    "fox",
+    "bein",
+    "sky",
+    "starz",
+    "cinema",
+    "netflix",
+    "primevideo",
+    "disneyplus",
+    "hbomax",
+    "peacocktv",
+    "paramountplus",
+    "showtime",
+    "starzplay",
+    "appletv",
+    "streamtape",
+    "fembed",
+    "hdp",
+    "hd-streams",
+    "hd-stream",
+  ]
+
+  const form = document.getElementById('videoForm');
+  const video = document.getElementById('video');
+  const webShareTextarea = document.getElementById('web-share');
+  let url = document.getElementById('videoUrl').value.trim();
+  const hls = new Hls();
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    url = document.getElementById('videoUrl').value.trim();
+
+    if (!url) {
+      alert('Please enter a valid URL.');
+      return;
+    }
+
+    for (const keyword of badKeywords) {
+      if (url.includes(keyword)) {
+        alert('The URL contains a disallowed keyword: ' + keyword);
+        return;
+      }
+    }
+    // Redirect to the same page with the URL as a query parameter
+    const encodedUrl = btoa(url);
+    window.location.href = window.location.origin + '?url=' + encodedUrl;
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    let source = params.get('url') || params.get('src') || '';
+    if (source) {
+      if (!source.startsWith('http://') && !source.startsWith('https://')) {
+        urlDebase64 = atob(source);
+        if (urlDebase64.startsWith('http://') || urlDebase64.startsWith('https://')) {
+          source = urlDebase64;
+        }
+      }
+
+      webShareTextarea.value = window.location.origin + '?url=' + btoa(source);
+      document.getElementById('videoUrl').value = source;
+      for (const keyword of badKeywords) {
+        if (source.includes(keyword)) {
+          alert('The URL contains a disallowed keyword: ' + keyword);
+          return;
+        }
+      }
+
+      const player = new Plyr(video);
+
+      if (!Hls.isSupported()) {
+        video.src = source;
+      } else {
+        hls.loadSource(source);
+        hls.attachMedia(video);
+        window.hls = hls;
+      }
+      window.player = player;
+    }
+  });
+
+  function copyWebShare() {
+    webShareTextarea.select();
+    webShareTextarea.setSelectionRange(0, 99999); // For mobile devices
+    navigator.clipboard.writeText(webShareTextarea.value);
+    alert('Web share link copied to clipboard!');
+  }
+
+  function extractYoutubeID(url) {
+    const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  }
+</script>
+
+</html>
