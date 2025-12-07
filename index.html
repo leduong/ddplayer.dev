@@ -361,6 +361,183 @@ User-submitted URLs are validated client-side for policy compliance.
     const match = url.match(regex);
     return match ? match[1] : null;
   }
+
+  (function() {
+    const PROGRESS_PREFIX = 'ddplayer:progress:';
+    const LOGS_KEY = 'ddplayer:logs';
+    const SAVE_INTERVAL = 5; // seconds
+
+    function progressKeyFor(url) {
+      try {
+        return PROGRESS_PREFIX + btoa(url);
+      } catch {
+        return PROGRESS_PREFIX + encodeURIComponent(url);
+      }
+    }
+
+    function saveLog(entry) {
+      try {
+        const logs = JSON.parse(localStorage.getItem(LOGS_KEY) || '[]');
+        logs.push(Object.assign({
+          ts: new Date().toISOString()
+        }, entry));
+        localStorage.setItem(LOGS_KEY, JSON.stringify(logs.slice(-200))); // keep last 200
+        console.debug('player log saved', entry);
+      } catch (e) {
+        console.debug('log save failed', e);
+      }
+    }
+
+    function formatTimeSec(s) {
+      s = Math.floor(s || 0);
+      const m = Math.floor(s / 60);
+      const sec = s % 60;
+      return `${m}:${sec.toString().padStart(2,'0')}`;
+    }
+
+    // called after the source is attached and player/video available
+    function attachProgressAndErrors(videoEl, sourceUrl, hlsInstance, playerInstance) {
+      if (!videoEl || !sourceUrl) return;
+
+      const key = progressKeyFor(sourceUrl);
+      let lastSaved = 0;
+      let lastTime = 0;
+
+      // resume if progress exists
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const obj = JSON.parse(raw);
+          const pos = Number(obj.pos) || 0;
+          // resume only if meaningful
+          if (pos > 5 && (!videoEl.duration || pos < (videoEl.duration - 5))) {
+            // attempt to seek after metadata loaded
+            const trySeek = () => {
+              try {
+                videoEl.currentTime = pos;
+                showResumeToast(pos);
+              } catch (e) {
+                // ignore
+              }
+            };
+            if (videoEl.readyState >= 1) trySeek();
+            else videoEl.addEventListener('loadedmetadata', trySeek, {
+              once: true
+            });
+          }
+        }
+      } catch (e) {
+        /* ignore parse error */ }
+
+      function persist() {
+        try {
+          const obj = {
+            pos: Math.max(0, Math.floor(videoEl.currentTime)),
+            dur: Math.floor(videoEl.duration || 0)
+          };
+          localStorage.setItem(key, JSON.stringify(obj));
+          lastSaved = Math.floor(videoEl.currentTime);
+        } catch (e) {
+          console.debug('persist failed', e);
+        }
+      }
+
+      function onTimeUpdate() {
+        const t = Math.floor(videoEl.currentTime);
+        if (t - lastSaved >= SAVE_INTERVAL) persist();
+        lastTime = t;
+      }
+
+      function onPauseOrUnload() {
+        persist();
+      }
+
+      function onEnded() {
+        try {
+          localStorage.removeItem(key);
+        } catch (_) {}
+      }
+
+      // small toast to inform user resumed
+      function showResumeToast(pos) {
+        try {
+          const msg = `Resumed at ${formatTimeSec(pos)}`;
+          const n = document.createElement('div');
+          n.textContent = msg;
+          n.className = 'fixed bottom-6 right-6 bg-black/70 text-white px-3 py-2 rounded-md text-sm';
+          document.body.appendChild(n);
+          setTimeout(() => n.remove(), 3500);
+        } catch (_) {}
+      }
+
+      // error capture for <video>
+      function captureVideoError(ev) {
+        const code = videoEl.error ? videoEl.error.code : null;
+        const msg = `video error code=${code} networkState=${videoEl.networkState} readyState=${videoEl.readyState}`;
+        saveLog({
+          type: 'video_error',
+          url: sourceUrl,
+          message: msg
+        });
+        console.error(msg, ev);
+      }
+
+      // attach listeners
+      videoEl.addEventListener('timeupdate', onTimeUpdate);
+      videoEl.addEventListener('pause', onPauseOrUnload);
+      videoEl.addEventListener('ended', onEnded);
+      window.addEventListener('beforeunload', onPauseOrUnload);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') onPauseOrUnload();
+      });
+
+      videoEl.addEventListener('error', captureVideoError);
+
+      // Hls.js error logging
+      if (hlsInstance && typeof hlsInstance.on === 'function') {
+        hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+          try {
+            const fatal = data && data.fatal;
+            const type = data && data.type;
+            const details = data && data.details;
+            const msg = `hls error type=${type} details=${details} fatal=${fatal}`;
+            saveLog({
+              type: 'hls_error',
+              url: sourceUrl,
+              message: msg,
+              data: data
+            });
+            console.error(msg, data);
+            // optional auto-recover for non-fatal
+            if (!fatal) return;
+            // attempt recover if available
+            try {
+              hlsInstance.startLoad();
+            } catch (_) {}
+          } catch (e) {
+            console.debug('hls error handler failed', e);
+          }
+        });
+      }
+
+      // player-level errors (Plyr)
+      if (playerInstance && playerInstance.on) {
+        try {
+          playerInstance.on('error', (err) => {
+            saveLog({
+              type: 'plyr_error',
+              url: sourceUrl,
+              message: String(err)
+            });
+            console.error('plyr error', err);
+          });
+        } catch (_) {}
+      }
+    }
+
+    // expose helper for existing init flow
+    window.__ddplayer_attachProgressAndErrors = attachProgressAndErrors;
+  })();
 </script>
 
 </html>
