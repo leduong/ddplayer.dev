@@ -15,6 +15,7 @@ User-submitted URLs are validated client-side for policy compliance.
   <script src="/plyr.min.js"></script>
   <link href="/plyr.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/hls.js/dist/hls.min.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7585380861937660" crossorigin="anonymous"></script>
   <meta name="description" content="DDPlayer — a simple, responsive player for HLS, MP4, and YouTube. Paste a video URL to play directly." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://ddplayer.dev/" />
@@ -56,8 +57,8 @@ User-submitted URLs are validated client-side for policy compliance.
       <div class="shadow-lg rounded-lg my-5 w-full">
         <form id="videoForm" class="flex flex-col md:flex-row gap-3 items-stretch">
           <label for="videoUrl" class="sr-only">Video URL</label>
-          <input type="url" id="videoUrl" placeholder="Enter a valid URL (e.g., https://example.com/playlist.m3u8)" required class="flex-1 px-4 py-2 rounded border border-gray-700 bg-neutral-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="off" />
-          <button type="submit" class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+          <input type="url" id="videoUrl" placeholder="Enter a valid URL (e.g., https://example.com/playlist.m3u8)" required class="flex-1 px-4 py-2 rounded border border-gray-700 bg-neutral-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-neutral-500" autocomplete="off" />
+          <button type="submit" class="w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
             Play
           </button>
         </form>
@@ -77,8 +78,11 @@ User-submitted URLs are validated client-side for policy compliance.
       <div class="shadow-lg rounded-lg my-5 md:my-0 w-full">
         <h2 class="text-2xl font-bold mb-4">DDPlayer - The Ultimate Video Player</h2>
         <h3>Link share</h3>
-        <textarea id="web-share" class="w-full p-2 bg-gray-700/50" onclick="copyWebShare()">
-        </textarea>
+        <p class="text-sm text-gray-400 mb-2">Share this link to load the same video URL in DDPlayer:</p>
+        <div class="flex flex-col md:flex-row gap-3 items-stretch">
+          <input id="web-share" class="w-full p-2 bg-gray-700/50" onclick="copyWebShare()" />
+          <button type="button" onclick="copyWebShare()" class="w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Copy</button>
+        </div>
         <p class="text-sm text-gray-400 mt-2">Click the box to copy the web share link to clipboard.</p>
       </div>
 
