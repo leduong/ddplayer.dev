@@ -35,7 +35,6 @@ User-submitted URLs are validated client-side for policy compliance.
   <!-- Performance / CDN hints -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/ddplayer@latest/dist/plyr.css" as="style" />
   <meta name="theme-color" content="#0f172a" />
 </head>
 
@@ -427,7 +426,8 @@ User-submitted URLs are validated client-side for policy compliance.
           }
         }
       } catch (e) {
-        /* ignore parse error */ }
+        /* ignore parse error */
+      }
 
       function persist() {
         try {
