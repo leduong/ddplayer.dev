@@ -283,8 +283,8 @@ User-submitted URLs are validated client-side for policy compliance.
       );
       return;
     }
-    const encodedUrl = btoa(url);
-    window.location.href = window.location.origin + '?url=' + encodedUrl;
+
+    window.location.href = window.location.origin + '?url=' + btoa(url);
   });
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -299,7 +299,6 @@ User-submitted URLs are validated client-side for policy compliance.
       }
 
       webShareTextarea.value = window.location.origin + '?url=' + btoa(source);
-      document.getElementById('videoUrl').value = source;
 
       if (isSuspiciousURL(source)) {
         alert(
@@ -329,6 +328,9 @@ User-submitted URLs are validated client-side for policy compliance.
             const attempts = Number(sessionStorage.getItem(RECOVERY_KEY) || 0);
             if (attempts >= 2) return false; // limit retries
             sessionStorage.setItem(RECOVERY_KEY, String(attempts + 1));
+            setTimeout(() => {
+              sessionStorage.removeItem(RECOVERY_KEY);
+            }, 10 * 60 * 1000); // clear after 10 minutes
             const playUrl = (window.__API_HOST || 'https://caigi.app') + '/api/hls?play_link=' + encodeURIComponent(orig);
             hls.loadSource(playUrl);
             hls.attachMedia(video);
