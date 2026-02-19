@@ -1,0 +1,371 @@
+<!-- 
+This website is a developer testing tool.
+User-submitted URLs are validated client-side for policy compliance.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📺 DDPlayer - The Ultimate Video Player</title>
+  <script src="/artplayer.js"></script>
+  <script src="/plugin-hls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js/dist/hls.min.js"></script>
+  <meta name="description" content="DDPlayer — a simple, responsive player for HLS, MP4, and YouTube. Paste a video URL to play directly." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://ddplayer.dev/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="DDPlayer" />
+  <meta property="og:title" content="📺 DDPlayer - The Ultimate Video Player" />
+  <meta property="og:description" content="Paste a video URL to play directly. Supports HLS/DASH, MP4 and YouTube." />
+  <meta property="og:image" content="https://ddplayer.dev/poster.png" />
+  <meta property="og:url" content="https://ddplayer.dev/" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="📺 DDPlayer - The Ultimate Video Player" />
+  <meta name="twitter:description" content="Paste a video URL to play directly. Supports HLS/DASH, MP4 and YouTube." />
+  <meta name="twitter:image" content="https://ddplayer.dev/poster.png" />
+
+  <!-- Performance / CDN hints -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
+  <meta name="theme-color" content="#0f172a" />
+  <style>
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .artplayer-app {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+
+<script type="application/ld+json" id="ld-base">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "DDPlayer",
+    "url": "https://ddplayer.dev/"
+  }
+</script>
+
+<body>
+  <div class="ddplayer w-full h-full">
+  </div>
+</body>
+
+<script>
+  function isSuspiciousURL(input) {
+    if (!input || typeof input !== "string") return true;
+
+    let url;
+    try {
+      url = new URL(input.trim());
+    } catch {
+      return true;
+    }
+
+    const full = url.href.toLowerCase();
+    const host = url.hostname.toLowerCase();
+    const path = url.pathname.toLowerCase();
+
+    /* ========= 1. High-risk path patterns (IPTV / piracy) ========= */
+    const badPathKeywords = [
+      "/iptv/",
+      "/live/",
+      "/movie/",
+      "/movies/",
+      "/series/",
+      "/tv/",
+      "/streaming.php",
+    ];
+
+    if (badPathKeywords.some(k => path.includes(k))) {
+      return true;
+    }
+
+    /* ========= 2. IPTV panel / username-password signature ========= */
+    // /live/username/password/xxxx.m3u8
+    const xtreamRegex = /\/live\/[^/]+\/[^/]+\/?/;
+    if (xtreamRegex.test(path)) {
+      return true;
+    }
+
+    /* ========= 3. Known copyrighted platforms ========= */
+    const bannedPlatforms = [
+      "hbo",
+      "hbomax",
+      "netflix",
+      "primevideo",
+      "disneyplus",
+      "appletv",
+      "peacocktv",
+      "paramountplus",
+      "showtime",
+      "starz",
+      "starzplay",
+      "fox",
+      "bein",
+      "sky",
+    ];
+
+    if (bannedPlatforms.some(p => host.includes(p) || path.includes(p))) {
+      return true;
+    }
+
+    /* ========= 4. Adult / porn (zero tolerance) ========= */
+    const adultKeywords = [
+      // === Generic adult terms (careful but necessary) ===
+      "porn",
+      "porno",
+      "xxx",
+      "nsfw",
+      "sexvideo",
+      "adultvideo",
+
+      // === Major porn tube sites ===
+      "pornhub",
+      "youporn",
+      "redtube",
+      "tube8",
+      "xvideos",
+      "xhamster",
+      "tnaflix",
+      "spankbang",
+      "spankwire",
+      "pornmd",
+      "beeg",
+      "drtuber",
+      "fapvid",
+      "vporn",
+      "pornone",
+
+      // === Premium / niche porn networks ===
+      "brazzers",
+      "bangbros",
+      "realitykings",
+      "mofos",
+      "teamskeet",
+      "naughtyamerica",
+      "digitalplayground",
+      "vivid",
+      "evilangel",
+      "kink",
+      "wicked",
+      "hustler",
+
+      // === Cam / live sex platforms ===
+      "chaturbate",
+      "camsoda",
+      "myfreecams",
+      "bonga",
+      "stripchat",
+      "cam4",
+      "livejasmin",
+      "imlive",
+      "flirt4free",
+      "streamate",
+      "xcams",
+
+      // === Creator-based adult ===
+      "onlyfans",
+      "fanvue",
+      "manyvids",
+      "clips4sale",
+      "justforfans",
+      "fansly",
+      "patreonporn",
+
+      // === Fetish / niche ===
+      "fetish",
+      "bdsm",
+      "hentai",
+      "milf",
+      "teenporn",
+      "hardcore",
+      "softcore",
+      "camgirl",
+      "camslut",
+
+      // === Amateur / dump sites ===
+      "pornxp",
+      "eporner",
+      "sexvid",
+      "3movs",
+      "yourporn",
+      "watchmygf",
+
+      // === Adult streaming / CDN indicators ===
+      "adultcdn",
+      "porncdn",
+      "sexcdn",
+      "adultstream",
+      "pornstream",
+      "sexstream"
+    ];
+
+
+    if (adultKeywords.some(k => host.includes(k) || path.includes(k))) {
+      return true;
+    }
+
+    /* ========= 5. Suspicious host traits ========= */
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) {
+      // IP address as hostname
+      return true;
+    }
+
+    /* ========= 6. Extremely long or encoded URLs (abuse) ========= */
+    if (input.length > 500 || decodeURIComponent(input).length > 500) {
+      return true;
+    }
+
+    return false;
+  }
+
+  const hls = new Hls();
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    let source = params.get('url') || params.get('src') || '';
+    if (source) {
+      if (!source.startsWith('http://') && !source.startsWith('https://')) {
+        urlDebase64 = atob(source);
+        if (urlDebase64.startsWith('http://') || urlDebase64.startsWith('https://')) {
+          source = urlDebase64;
+        }
+      }
+
+      if (isSuspiciousURL(source)) {
+        alert(
+          "This URL appears to contain copyrighted, IPTV, or adult content.\n\n" +
+          "DDPlayer is a technical testing tool only and cannot play this URL."
+        );
+        return;
+      }
+
+      const art = new Artplayer({
+        container: '.ddplayer',
+        url: source,
+        poster: '/poster.png',
+        volume: 0.75,
+        autoplay: false,
+        autoSize: false,
+        screenshot: true,
+        setting: true,
+        loop: true,
+        flip: true,
+        pip: true,
+        playbackRate: true,
+        aspectRatio: true,
+        fullscreen: true,
+        fullscreenWeb: true,
+        miniProgressBar: true,
+        autoPlayback: true,
+        autoOrientation: true,
+        thumbnails: {
+          url: '/poster.png',
+          number: 60,
+          column: 10,
+          scale: 0.85,
+        },
+        plugins: [
+          artplayerPluginHlsControl({
+            quality: {
+              // Show qualitys in control
+              control: true,
+              // Show qualitys in setting
+              setting: true,
+              // Get the quality name from level
+              getName: level => `${level.height}P`,
+              // I18n
+              title: 'Quality',
+              auto: 'Auto',
+            },
+            audio: {
+              // Show audios in control
+              control: true,
+              // Show audios in setting
+              setting: true,
+              // Get the audio name from track
+              getName: track => track.name,
+              // I18n
+              title: 'Audio',
+              auto: 'Auto',
+            },
+          }),
+        ],
+        customType: {
+          m3u8: function playM3u8(video, url, art) {
+            if (Hls.isSupported()) {
+              if (art.hls)
+                art.hls.destroy()
+              const hls = new Hls()
+              hls.loadSource(url)
+              hls.attachMedia(video)
+              art.hls = hls
+              art.on('destroy', () => hls.destroy())
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+              video.src = url
+            } else {
+              art.notice.show = 'Unsupported playback format: m3u8'
+            }
+            const RECOVERY_KEY = 'ddplayer:hls:recover:' + btoa(source);
+            async function tryRecoverHls(orig) {
+              try {
+                const attempts = Number(sessionStorage.getItem(RECOVERY_KEY) || 0);
+                if (attempts >= 2) return false; // limit retries
+                sessionStorage.setItem(RECOVERY_KEY, String(attempts + 1));
+                setTimeout(() => {
+                  sessionStorage.removeItem(RECOVERY_KEY);
+                }, 10 * 60 * 1000); // clear after 10 minutes
+                const playUrl = (window.__API_HOST || 'https://caigi.app') + '/api/hls?play_link=' + encodeURIComponent(orig);
+                hls.loadSource(playUrl);
+                hls.attachMedia(video);
+
+                return true;
+              } catch (err) {
+                console.warn('tryRecoverHls error', err);
+              }
+              return false;
+            }
+            // attach error handler to existing hls instance
+            hls.on(Hls.Events.ERROR, function(event, data) {
+              console.error('HLS error', data);
+              if (data && data.fatal) {
+                tryRecoverHls(source);
+              }
+            });
+          },
+        },
+      })
+    }
+  });
+</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-89K35T2FHM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+  gtag('config', 'G-89K35T2FHM');
+</script>
+<script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=6997270d30024924dd7f0956&product=sop' async='async'></script>
+
+</html>
