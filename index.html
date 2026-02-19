@@ -1,3 +1,7 @@
+<!-- 
+This website is a developer testing tool.
+User-submitted URLs are validated client-side for policy compliance.
+-->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,13 +10,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📺 DDPlayer - The Ultimate Video Player</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- <script src="https://cdn.jsdelivr.net/npm/ddplayer@latest/dist/plyr.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/ddplayer@latest/dist/plyr.css" rel="stylesheet" /> -->
-  <script src="/plyr.min.js"></script>
-  <link href="/plyr.css" rel="stylesheet" />
+  <script src="/artplayer.js"></script>
+  <script src="/plugin-hls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js/dist/hls.min.js"></script>
-  <script data-ad-client="ca-pub-7585380861937660" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7585380861937660" crossorigin="anonymous"></script>
   <meta name="description" content="DDPlayer — a simple, responsive player for HLS, MP4, and YouTube. Paste a video URL to play directly." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://ddplayer.dev/" />
@@ -20,19 +20,18 @@
   <meta property="og:site_name" content="DDPlayer" />
   <meta property="og:title" content="📺 DDPlayer - The Ultimate Video Player" />
   <meta property="og:description" content="Paste a video URL to play directly. Supports HLS/DASH, MP4 and YouTube." />
-  <meta property="og:image" content="https://ddplayer.dev/og-image.jpg" />
+  <meta property="og:image" content="https://ddplayer.dev/poster.png" />
   <meta property="og:url" content="https://ddplayer.dev/" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="📺 DDPlayer - The Ultimate Video Player" />
   <meta name="twitter:description" content="Paste a video URL to play directly. Supports HLS/DASH, MP4 and YouTube." />
-  <meta name="twitter:image" content="https://ddplayer.dev/og-image.jpg" />
+  <meta name="twitter:image" content="https://ddplayer.dev/poster.png" />
 
   <!-- Performance / CDN hints -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/ddplayer@latest/dist/plyr.css" as="style" />
   <meta name="theme-color" content="#0f172a" />
 </head>
 
@@ -55,8 +54,8 @@
       <div class="shadow-lg rounded-lg my-5 w-full">
         <form id="videoForm" class="flex flex-col md:flex-row gap-3 items-stretch">
           <label for="videoUrl" class="sr-only">Video URL</label>
-          <input type="url" id="videoUrl" placeholder="Enter a valid URL (e.g., https://example.com/playlist.m3u8)" required class="flex-1 px-4 py-2 rounded border border-gray-700 bg-neutral-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="off" />
-          <button type="submit" class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+          <input type="url" id="videoUrl" placeholder="Enter a valid URL (e.g., https://example.com/playlist.m3u8)" required class="flex-1 px-4 py-2 rounded border border-gray-700 bg-neutral-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-neutral-500" autocomplete="off" />
+          <button type="submit" class="w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
             Play
           </button>
         </form>
@@ -64,7 +63,8 @@
 
       <div class="shadow-lg rounded-lg my-5 md:my-0 w-full">
         <div class="player-wrap w-full bg-black rounded-lg overflow-hidden shadow-md" style="height: min(70vh, calc(100vh - 220px)); max-height: 900px;">
-          <video id="video" class="w-full h-full object-cover" crossorigin playsinline controls></video>
+          <div class="ddplayer w-full h-full">
+          </div>
         </div>
       </div>
 
@@ -75,75 +75,195 @@
 
       <div class="shadow-lg rounded-lg my-5 md:my-0 w-full">
         <h2 class="text-2xl font-bold mb-4">DDPlayer - The Ultimate Video Player</h2>
-        <textarea id="web-share" class="w-full p-4 bg-gray-700/50" onclick="copyWebShare()">
-        </textarea>
-      </div>
-
-      <div class="text-left w-full text-gray-300 space-y-2">
-        <h3 class="text-lg font-semibold">Features</h3>
-        <ul class="list-disc list-inside mb-4 w-full grid gap-1 grid-cols-1 md:grid-cols-2">
-          <li>📼 HTML Video & Audio, YouTube & Vimeo - support for the major formats</li>
-          <li>💪 Accessible - full support for VTT captions and screen readers</li>
-          <li>🔧 Customizable - make the player look how you want with the markup you want</li>
-          <li>😎 Clean HTML - uses the right elements</li>
-          <li>📱 Responsive - works with any screen size</li>
-          <li>💵 Monetization - make money from your videos</li>
-          <li>📹 Streaming - support for hls.js, Shaka and dash.js streaming playback</li>
-          <li>🎛 API - toggle playback, volume, seeking, and more through a standardized API</li>
-          <li>🎤 Events - no messing around with Vimeo and YouTube APIs, all events are standardized across formats</li>
-          <li>🔎 Fullscreen - supports native fullscreen with fallback to "full window" modes</li>
-          <li>⌨️ Shortcuts - supports keyboard shortcuts</li>
-          <li>🖥 Picture-in-Picture - supports picture-in-picture mode</li>
-          <li>📱 Playsinline - supports the playsinline attribute</li>
-          <li>🏎 Speed controls - adjust speed on the fly</li>
-          <li>📖 Multiple captions - support for multiple caption tracks</li>
-          <li>🌎 i18n support - support for internationalization of controls</li>
-          <li>👌 Preview thumbnails - support for displaying preview thumbnails</li>
-          <li>🤟 No frameworks - written in "vanilla" ES6 JavaScript, no jQuery required</li>
-          <li>💁‍♀️ SASS - to include in your build processes</li>
+        <h3>Link share</h3>
+        <p class="text-sm text-gray-400 mb-2">Share this link to load the same video URL in DDPlayer:</p>
+        <div class="flex flex-col md:flex-row gap-3 items-stretch">
+          <input id="web-share" class="w-full p-2 bg-gray-700/50" onclick="copyWebShare()" />
+          <button type="button" onclick="copyWebShare()" class="w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Copy</button>
+        </div>
+        <p class="text-sm text-gray-400 mt-2">Click the box to copy the web share link to clipboard.</p>
       </div>
     </main>
 
     <div class="mt-6 text-center text-sm text-gray-600">
-      &copy; 2025 DDPlayer
+      Develop by DDPlayer team, Hosted by <a href="https://github.com/leduong/ddplayer.dev" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">github</a>
     </div>
 </body>
 
 <script>
-  badKeywords = [
-    "/live/",
-    "/iptv/",
-    "/streaming.php",
-    "/movie/",
-    "/series/",
-    "xtream",
-    "panel",
-    "hbo",
-    "fox",
-    "bein",
-    "sky",
-    "starz",
-    "cinema",
-    "netflix",
-    "primevideo",
-    "disneyplus",
-    "hbomax",
-    "peacocktv",
-    "paramountplus",
-    "showtime",
-    "starzplay",
-    "appletv",
-    "streamtape",
-    "fembed",
-    "hdp",
-    "hd-streams",
-    "hd-stream",
-  ]
+  function isSuspiciousURL(input) {
+    if (!input || typeof input !== "string") return true;
+
+    let url;
+    try {
+      url = new URL(input.trim());
+    } catch {
+      return true;
+    }
+
+    const full = url.href.toLowerCase();
+    const host = url.hostname.toLowerCase();
+    const path = url.pathname.toLowerCase();
+
+    /* ========= 1. High-risk path patterns (IPTV / piracy) ========= */
+    const badPathKeywords = [
+      "/iptv/",
+      "/live/",
+      "/movie/",
+      "/movies/",
+      "/series/",
+      "/tv/",
+      "/streaming.php",
+    ];
+
+    if (badPathKeywords.some(k => path.includes(k))) {
+      return true;
+    }
+
+    /* ========= 2. IPTV panel / username-password signature ========= */
+    // /live/username/password/xxxx.m3u8
+    const xtreamRegex = /\/live\/[^/]+\/[^/]+\/?/;
+    if (xtreamRegex.test(path)) {
+      return true;
+    }
+
+    /* ========= 3. Known copyrighted platforms ========= */
+    const bannedPlatforms = [
+      "hbo",
+      "hbomax",
+      "netflix",
+      "primevideo",
+      "disneyplus",
+      "appletv",
+      "peacocktv",
+      "paramountplus",
+      "showtime",
+      "starz",
+      "starzplay",
+      "fox",
+      "bein",
+      "sky",
+    ];
+
+    if (bannedPlatforms.some(p => host.includes(p) || path.includes(p))) {
+      return true;
+    }
+
+    /* ========= 4. Adult / porn (zero tolerance) ========= */
+    const adultKeywords = [
+      // === Generic adult terms (careful but necessary) ===
+      "porn",
+      "porno",
+      "xxx",
+      "nsfw",
+      "sexvideo",
+      "adultvideo",
+
+      // === Major porn tube sites ===
+      "pornhub",
+      "youporn",
+      "redtube",
+      "tube8",
+      "xvideos",
+      "xhamster",
+      "tnaflix",
+      "spankbang",
+      "spankwire",
+      "pornmd",
+      "beeg",
+      "drtuber",
+      "fapvid",
+      "vporn",
+      "pornone",
+
+      // === Premium / niche porn networks ===
+      "brazzers",
+      "bangbros",
+      "realitykings",
+      "mofos",
+      "teamskeet",
+      "naughtyamerica",
+      "digitalplayground",
+      "vivid",
+      "evilangel",
+      "kink",
+      "wicked",
+      "hustler",
+
+      // === Cam / live sex platforms ===
+      "chaturbate",
+      "camsoda",
+      "myfreecams",
+      "bonga",
+      "stripchat",
+      "cam4",
+      "livejasmin",
+      "imlive",
+      "flirt4free",
+      "streamate",
+      "xcams",
+
+      // === Creator-based adult ===
+      "onlyfans",
+      "fanvue",
+      "manyvids",
+      "clips4sale",
+      "justforfans",
+      "fansly",
+      "patreonporn",
+
+      // === Fetish / niche ===
+      "fetish",
+      "bdsm",
+      "hentai",
+      "milf",
+      "teenporn",
+      "hardcore",
+      "softcore",
+      "camgirl",
+      "camslut",
+
+      // === Amateur / dump sites ===
+      "pornxp",
+      "eporner",
+      "sexvid",
+      "3movs",
+      "yourporn",
+      "watchmygf",
+
+      // === Adult streaming / CDN indicators ===
+      "adultcdn",
+      "porncdn",
+      "sexcdn",
+      "adultstream",
+      "pornstream",
+      "sexstream"
+    ];
+
+
+    if (adultKeywords.some(k => host.includes(k) || path.includes(k))) {
+      return true;
+    }
+
+    /* ========= 5. Suspicious host traits ========= */
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) {
+      // IP address as hostname
+      return true;
+    }
+
+    /* ========= 6. Extremely long or encoded URLs (abuse) ========= */
+    if (input.length > 500 || decodeURIComponent(input).length > 500) {
+      return true;
+    }
+
+    return false;
+  }
 
   const form = document.getElementById('videoForm');
   const video = document.getElementById('video');
   const webShareTextarea = document.getElementById('web-share');
   let url = document.getElementById('videoUrl').value.trim();
+  let isCopied = false;
   const hls = new Hls();
 
   form.addEventListener('submit', function(e) {
@@ -155,15 +275,15 @@
       return;
     }
 
-    for (const keyword of badKeywords) {
-      if (url.includes(keyword)) {
-        alert('The URL contains a disallowed keyword: ' + keyword);
-        return;
-      }
+    if (isSuspiciousURL(url)) {
+      alert(
+        "This URL appears to contain copyrighted, IPTV, or adult content.\n\n" +
+        "DDPlayer is a technical testing tool only and cannot play this URL."
+      );
+      return;
     }
-    // Redirect to the same page with the URL as a query parameter
-    const encodedUrl = btoa(url);
-    window.location.href = window.location.origin + '?url=' + encodedUrl;
+
+    window.location.href = window.location.origin + '?url=' + btoa(url);
   });
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -178,24 +298,110 @@
       }
 
       webShareTextarea.value = window.location.origin + '?url=' + btoa(source);
-      document.getElementById('videoUrl').value = source;
-      for (const keyword of badKeywords) {
-        if (source.includes(keyword)) {
-          alert('The URL contains a disallowed keyword: ' + keyword);
-          return;
-        }
+
+      if (isSuspiciousURL(source)) {
+        alert(
+          "This URL appears to contain copyrighted, IPTV, or adult content.\n\n" +
+          "DDPlayer is a technical testing tool only and cannot play this URL."
+        );
+        return;
       }
 
-      const player = new Plyr(video);
+      const art = new Artplayer({
+        container: '.ddplayer',
+        url: source,
+        poster: '/poster.png',
+        volume: 0.75,
+        autoplay: false,
+        autoSize: false,
+        screenshot: true,
+        setting: true,
+        loop: true,
+        flip: true,
+        pip: true,
+        playbackRate: true,
+        aspectRatio: true,
+        fullscreen: true,
+        fullscreenWeb: true,
+        miniProgressBar: true,
+        autoPlayback: true,
+        autoOrientation: true,
+        thumbnails: {
+          url: '/poster.png',
+          number: 60,
+          column: 10,
+          scale: 0.85,
+        },
+        plugins: [
+          artplayerPluginHlsControl({
+            quality: {
+              // Show qualitys in control
+              control: true,
+              // Show qualitys in setting
+              setting: true,
+              // Get the quality name from level
+              getName: level => `${level.height}P`,
+              // I18n
+              title: 'Quality',
+              auto: 'Auto',
+            },
+            audio: {
+              // Show audios in control
+              control: true,
+              // Show audios in setting
+              setting: true,
+              // Get the audio name from track
+              getName: track => track.name,
+              // I18n
+              title: 'Audio',
+              auto: 'Auto',
+            },
+          }),
+        ],
+        customType: {
+          m3u8: function playM3u8(video, url, art) {
+            if (Hls.isSupported()) {
+              if (art.hls)
+                art.hls.destroy()
+              const hls = new Hls()
+              hls.loadSource(url)
+              hls.attachMedia(video)
+              art.hls = hls
+              art.on('destroy', () => hls.destroy())
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+              video.src = url
+            } else {
+              art.notice.show = 'Unsupported playback format: m3u8'
+            }
+            const RECOVERY_KEY = 'ddplayer:hls:recover:' + btoa(source);
+            async function tryRecoverHls(orig) {
+              try {
+                const attempts = Number(sessionStorage.getItem(RECOVERY_KEY) || 0);
+                if (attempts >= 2) return false; // limit retries
+                sessionStorage.setItem(RECOVERY_KEY, String(attempts + 1));
+                setTimeout(() => {
+                  sessionStorage.removeItem(RECOVERY_KEY);
+                }, 10 * 60 * 1000); // clear after 10 minutes
+                const playUrl = (window.__API_HOST || 'https://caigi.app') + '/api/hls?play_link=' + encodeURIComponent(orig);
+                hls.loadSource(playUrl);
+                hls.attachMedia(video);
 
-      if (!Hls.isSupported()) {
-        video.src = source;
-      } else {
-        hls.loadSource(source);
-        hls.attachMedia(video);
-        window.hls = hls;
-      }
-      window.player = player;
+                return true;
+              } catch (err) {
+                console.warn('tryRecoverHls error', err);
+              }
+              return false;
+            }
+            // attach error handler to existing hls instance
+            hls.on(Hls.Events.ERROR, function(event, data) {
+              console.error('HLS error', data);
+              if (data && data.fatal) {
+                tryRecoverHls(source);
+              }
+            });
+          },
+        },
+      })
     }
   });
 
@@ -204,6 +410,10 @@
     webShareTextarea.setSelectionRange(0, 99999); // For mobile devices
     navigator.clipboard.writeText(webShareTextarea.value);
     alert('Web share link copied to clipboard!');
+    isCopied = true;
+    setTimeout(() => {
+      isCopied = false;
+    }, 2000);
   }
 
   function extractYoutubeID(url) {
@@ -211,6 +421,17 @@
     const match = url.match(regex);
     return match ? match[1] : null;
   }
+</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-89K35T2FHM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+  gtag('config', 'G-89K35T2FHM');
 </script>
 
 </html>
